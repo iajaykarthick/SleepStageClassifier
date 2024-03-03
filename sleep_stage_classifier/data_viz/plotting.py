@@ -40,7 +40,7 @@ def plot_signal_with_stages(psg_object, hypnogram_object, signal_label):
     ax2.set_yticks(list(stage_mapping.values()))
     ax2.set_yticklabels(list(stage_mapping.keys()))
 
-    plt.title('Signal and Hypnogram')
+    plt.title(f'{signal_label} with sleep stages')
     fig.tight_layout()
     plt.show()
 
