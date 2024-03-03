@@ -9,5 +9,6 @@ scipy
 scikit-learn
 tqdm
 pyedflib
-neurokit2
+yasa
 mlflow
+xlrd
