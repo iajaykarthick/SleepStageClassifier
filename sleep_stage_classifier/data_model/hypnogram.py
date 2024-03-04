@@ -18,8 +18,20 @@ class Hypnogram(EDFFile):
         hypno_onsets, _, hypno_stages = annotations
 
         # Convert stages to integers for plotting
-        stage_mapping = {'Sleep stage W': 0, 'Sleep stage 1': 1, 'Sleep stage 2': 2, 'Sleep stage 3': 3, 'Sleep stage 4': 3, 'Sleep stage R': 4, 'Movement time': 5, 'Sleep stage ?': 6}
-        mapped_hypno_stages = [stage_mapping[stage] for stage in hypno_stages]
+        
+        hypno_stages = ['light' if stage in ['Sleep stage 1', 'Sleep stage 2']  else stage for stage in hypno_stages]
+        hypno_stages = ['deep' if stage in ['Sleep stage 3', 'Sleep stage 4']  else stage for stage in hypno_stages]
+        hypno_stages = ['rem' if stage == 'Sleep stage R'  else stage for stage in hypno_stages]
+        hypno_stages = ['wake' if stage == 'Sleep stage W'  else stage for stage in hypno_stages]
+
+        stage_mapping = {
+            'wake': 4, 
+            'rem': 3, 
+            'light': 2, 
+            'deep': 1
+        }
+        
+        mapped_hypno_stages = [stage_mapping.get(stage, 5) for stage in hypno_stages] 
         
         plt.figure(figsize=(15, 3))
         plt.step(hypno_onsets, mapped_hypno_stages, where='post')

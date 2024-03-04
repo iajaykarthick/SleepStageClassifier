@@ -13,9 +13,19 @@ def plot_signal_with_stages(psg_object, hypnogram_object, signal_label):
     hypno_onsets, hypno_durations, hypno_stages = hypnogram_object.get_annotations()
 
     
-    stage_mapping = {'Sleep stage W': 0, 'Sleep stage 1': 1, 'Sleep stage 2': 2, 
-                     'Sleep stage 3': 3, 'Sleep stage 4': 3, 'Sleep stage R': 4, 
-                     'Movement time': 5, 'Sleep stage ?': 6}
+
+    hypno_stages = ['light' if stage in ['Sleep stage 1', 'Sleep stage 2']  else stage for stage in hypno_stages]
+    hypno_stages = ['deep' if stage in ['Sleep stage 3', 'Sleep stage 4']  else stage for stage in hypno_stages]
+    hypno_stages = ['rem' if stage == 'Sleep stage R'  else stage for stage in hypno_stages]
+    hypno_stages = ['wake' if stage == 'Sleep stage W'  else stage for stage in hypno_stages]
+
+    stage_mapping = {
+        'wake': 4, 
+        'rem': 3, 
+        'light': 2, 
+        'deep': 1
+    }
+    
     mapped_hypno_stages = [stage_mapping[stage] for stage in hypno_stages]
 
 
@@ -59,10 +69,21 @@ def plot_all_signals_with_stages(psg_object, hypnogram_object):
     fig, axs = plt.subplots(num_signals, 1, figsize=(15, num_signals * 3), sharex=True)
     
     hypno_onsets, hypno_durations, hypno_stages = hypnogram_object.get_annotations()
-    stage_mapping = {'Sleep stage W': 0, 'Sleep stage 1': 1, 'Sleep stage 2': 2, 
-                     'Sleep stage 3': 3, 'Sleep stage 4': 3, 'Sleep stage R': 4, 
-                     'Movement time': 5, 'Sleep stage ?': 6}
-    mapped_hypno_stages = [stage_mapping[stage] for stage in hypno_stages]
+    
+
+    hypno_stages = ['light' if stage in ['Sleep stage 1', 'Sleep stage 2']  else stage for stage in hypno_stages]
+    hypno_stages = ['deep' if stage in ['Sleep stage 3', 'Sleep stage 4']  else stage for stage in hypno_stages]
+    hypno_stages = ['rem' if stage == 'Sleep stage R'  else stage for stage in hypno_stages]
+    hypno_stages = ['wake' if stage == 'Sleep stage W'  else stage for stage in hypno_stages]
+
+    stage_mapping = {
+        'wake': 4, 
+        'rem': 3, 
+        'light': 2, 
+        'deep': 1
+    }
+    
+    mapped_hypno_stages = [stage_mapping.get(stage, 5) for stage in hypno_stages] 
 
     hypno_plot_times = []
     hypno_plot_stages = []
@@ -82,8 +103,10 @@ def plot_all_signals_with_stages(psg_object, hypnogram_object):
         ax2.step(hypno_plot_times, hypno_plot_stages, where='post', color='r')
         ax2.set_ylabel('Sleep Stage', color='r')
         ax2.tick_params('y', colors='r')
-        ax2.set_yticks(list(stage_mapping.values()))
-        ax2.set_yticklabels(list(stage_mapping.keys()))
+        
+        sorted_stage_items = sorted(stage_mapping.items(), key=lambda x: x[1])
+        ax2.set_yticks([item[1] for item in sorted_stage_items])
+        ax2.set_yticklabels([item[0] for item in sorted_stage_items])
     
     plt.xlabel('Time (seconds)')
     plt.tight_layout()
@@ -91,4 +114,3 @@ def plot_all_signals_with_stages(psg_object, hypnogram_object):
 
     psg_object.close()
     hypnogram_object.close()
-    
