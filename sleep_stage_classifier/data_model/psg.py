@@ -59,7 +59,7 @@ class PSG(EDFFile):
         plt.show()
         
         
-    def plot_signals(self, labels=None, start_time=0, end_time=None, shared_xaxis=True):
+    def plot_signals(self, labels=None, title='Signals', start_time=0, end_time=None, shared_xaxis=True):
         self.open()
         
         if labels is None:
@@ -89,7 +89,7 @@ class PSG(EDFFile):
             ax.set_ylabel(label)
         
         self.close()
-        
+        plt.suptitle(title)
         plt.xlabel('Time (seconds)')
         fig.tight_layout() 
         plt.show()
