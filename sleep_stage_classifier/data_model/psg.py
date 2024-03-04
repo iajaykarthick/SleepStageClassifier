@@ -7,20 +7,36 @@ from sleep_stage_classifier.data_model.edf_file import EDFFile
 class PSG(EDFFile):
     def __init__(self, file_path):
         super().__init__(file_path)
+        self.filtered_signals = {}
 
     def get_signal_labels(self):
         self.open()
-        return self.file.getSignalLabels()
+        labels = self.file.getSignalLabels()
+        self.close()
+        return labels
 
-    def get_signal(self, label):
-        self.open()
+    def get_signal(self, label, filtered=False):
+        if filtered:
+            return self.get_filtered_signal(label)
+    
         signal_index = self.get_signal_labels().index(label)
-        return self.file.readSignal(signal_index)
+        self.open()
+        signal = self.file.readSignal(signal_index)
+        self.close()
+        return signal
+    
+    def get_filtered_signal(self, label):
+        return self.filtered_signals.get(label, None)
+    
+    def set_signal(self, label, signal):
+        self.filtered_signals[label] = signal
 
     def get_sampling_frequency(self, label):
-        self.open()
         signal_index = self.get_signal_labels().index(label)
-        return self.file.getSampleFrequency(signal_index)
+        self.open()
+        fs = self.file.getSampleFrequency(signal_index)
+        self.close()
+        return fs
     
     
     def plot_signal(self, label, start_time=0, end_time=None):
@@ -30,7 +46,7 @@ class PSG(EDFFile):
         
         signal = self.get_signal(label)
         times = np.arange(signal.size) / sampling_rate
-        
+        self.close()
         if end_time is not None:
             signal = signal[int(start_time*sampling_rate):int(end_time*sampling_rate)]
             times = times[int(start_time*sampling_rate):int(end_time*sampling_rate)]
@@ -71,8 +87,9 @@ class PSG(EDFFile):
 
             ax.plot(times, signal)
             ax.set_ylabel(label)
-
-        # Set common labels
+        
+        self.close()
+        
         plt.xlabel('Time (seconds)')
-        fig.tight_layout()  # Adjust the layout
+        fig.tight_layout() 
         plt.show()
